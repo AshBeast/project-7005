@@ -39,9 +39,10 @@ def wait_for_ACK():
         sock.settimeout(2.0)  # Set timeout for ACK
         data, server = sock.recvfrom(4096)
         print(f"Received ACK: {data.decode()}")
+        return 0
     except socket.timeout:
         print("No ACK received. Resending the message.")
-        return
+        return 1
     except Exception as e:
         error(e, "wait_for_ACK")
 
