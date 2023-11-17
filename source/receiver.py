@@ -2,6 +2,7 @@ import socket
 import signal
 import sys
 
+# Define global variables
 sock = None
 
 def receiver():

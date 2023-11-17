@@ -22,11 +22,10 @@ def sender_init():
     except Exception as e:
         error(e, "sender_init")
 
-def make_message():
+def send_message(message):
     global proxy_ip, proxy_port, sock
 
     try:
-        message = input("Enter message to send: ")
         if not message:
             raise ValueError("No message entered")
         sock.sendto(message.encode(), (proxy_ip, proxy_port))
@@ -41,15 +40,18 @@ def wait_for_ACK():
         print(f"Received ACK: {data.decode()}")
         return 0
     except socket.timeout:
-        print("No ACK received. Resending the message.")
+        print("No ACK received.\n")
         return 1
     except Exception as e:
         error(e, "wait_for_ACK")
 
 def handler():
     while True:
-        make_message()
-        wait_for_ACK()
+        message = input("Enter message to send: ")
+        send_message(message)
+        while (wait_for_ACK() != 0):
+            print("Resending message...")
+            send_message(message)
 
 def error(message, stateName):
     print(f"\nError Message: {message}\nState: {stateName}")
