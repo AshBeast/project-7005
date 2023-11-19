@@ -1,6 +1,7 @@
 import socket
 import signal
 import random
+import datetime
 import time
 import sys
 
@@ -9,16 +10,16 @@ dropped_ACK_packets = 0
 dropped_data_packets = 0
 delayed_ACK_packets = 0
 delayed_data_packets = 0
-received_ACK_packets = 0
-received_data_packets = 0
+total_ACK_packets = 0
+total_data_packets = 0
 sent_ACK_packets = 0
 sent_data_packets = 0
-total_latency = 0.0
 
 # Define probabilities
 drop_data_prob = 0.1  # 10% chance to drop data
 drop_ack_prob = 0.1   # 10% chance to drop ack
-delay_prob = 0.1      # 10% chance to delay packet
+delay_data_prob = 0.1      # 10% chance to delay data packet
+delay_ack_prob = 0.1      # 10% chance to delay ack packet
 max_delay = 4         # Maximum delay in seconds
 
 # Define global variables
@@ -27,9 +28,26 @@ receiver_port = None
 listen_port = None
 sock = None
 
+def get_valid_percentage(prompt):
+    while True:
+        input_value = input(prompt)
+        try:
+            # Remove '%' if present and convert to float
+            if input_value.endswith('%'):
+                input_value = input_value[:-1]
+            value = float(input_value)
+
+            if 0 <= value <= 100:
+                return value / 100  # Convert percentage to a probability (0-1)
+            else:
+                print("Please enter a value between 0 and 100.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
 def proxy_init():
     try: 
-        global receiver_ip, receiver_port, listen_port, sock
+        global receiver_ip, receiver_port, listen_port, sock, \
+            drop_data_prob, drop_ack_prob, delay_data_prob, delay_ack_prob, max_delay
         if len(sys.argv) != 4:
             # raise ValueError("Usage: python proxy.py [Receiver IP] [Receiver Port] [Listen Port]")
             receiver_ip = "10.0.0.210"
@@ -39,6 +57,12 @@ def proxy_init():
             sock.bind(('', listen_port))
             handler()
             
+        # User input for probabilities
+        drop_data_prob = get_valid_percentage("Enter percentage to drop data (0-100): ")
+        drop_ack_prob = get_valid_percentage("Enter percentage to drop ACK (0-100): ")
+        delay_data_prob = get_valid_percentage("Enter percentage to delay data packets (0-100): ")
+        delay_ack_prob = get_valid_percentage("Enter percentage to delay ACK packets (0-100): ")
+        max_delay = float(input("Enter maximum delay in seconds: "))
 
         receiver_ip = sys.argv[1]
         receiver_port = int(sys.argv[2])
@@ -51,11 +75,11 @@ def proxy_init():
         error(e, "proxy_init")
 
 def handler():
-    global received_data_packets
+    global total_data_packets
     try:
         while True:
             data, addr = sock.recvfrom(4096)
-            received_data_packets += 1
+            total_data_packets += 1
             if not data:
                 #this is dumb idk what to do lol
                 raise ValueError(f"Interesting data {data.decode()}")
@@ -81,7 +105,7 @@ def data_to_receiver(data, sender_addr):
             return 1
 
         # Randomly delay data packet
-        if random.random() < delay_prob:
+        if random.random() < delay_data_prob:
             print(f"sleeping data packet for up to {max_delay}")
             delayed_data_packets += 1
             time.sleep(random.uniform(0, max_delay))
@@ -95,10 +119,10 @@ def data_to_receiver(data, sender_addr):
         error(e, "data_to_receiver")
 
 def ACK_to_sender(sender_addr):
-    global sock, received_ACK_packets, dropped_ACK_packets, delayed_ACK_packets, sent_ACK_packets
+    global sock, total_ACK_packets, dropped_ACK_packets, delayed_ACK_packets, sent_ACK_packets
     try:
         ack_data, receiver_addr = sock.recvfrom(4096)
-        received_ACK_packets += 1
+        total_ACK_packets += 1
 
         # Randomly drop ACK
         if random.random() < drop_ack_prob:
@@ -107,7 +131,7 @@ def ACK_to_sender(sender_addr):
             return
 
         # Randomly delay ACK
-        if random.random() < delay_prob:
+        if random.random() < delay_ack_prob:
             print(f"sleeping ACK packet for up to {max_delay}")
             delayed_ACK_packets += 1
             time.sleep(random.uniform(0, max_delay))
@@ -130,20 +154,28 @@ def handle_sigint(signum, frame):
 def destroy():
     print("Closing the proxy...")
     #if socket exists close it
-    print("statistics\n")
-    print(f"dropped_ACK_packets: {dropped_ACK_packets}")
-    print(f"dropped_data_packets: {dropped_data_packets}")
-    print(f"delayed_ACK_packets: {delayed_ACK_packets}")
-    print(f"delayed_data_packets: {delayed_data_packets}")
-    print(f"received_ACK_packets: {received_ACK_packets}")
-    print(f"received_data_packets: {received_data_packets}")
-    print(f"sent_ACK_packets: {sent_ACK_packets}")
-    print(f"sent_data_packets: {sent_data_packets}")
-    print(f"total_latency: {total_latency}")
     if sock:
         print("Closing the socket...")
         sock.close()
+
+    # Get current date and time
+    current_date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Write statistics to a file
+    with open("statisticsProxy.txt", "a") as file:
+        file.write(f"Statistics as of {current_date_time}\n\n")
+        file.write(f"dropped_ACK_packets: {dropped_ACK_packets}\n")
+        file.write(f"dropped_data_packets: {dropped_data_packets}\n")
+        file.write(f"delayed_ACK_packets: {delayed_ACK_packets}\n")
+        file.write(f"delayed_data_packets: {delayed_data_packets}\n")
+        file.write(f"total_ACK_packets: {total_ACK_packets}\n")
+        file.write(f"total_data_packets: {total_data_packets}\n")
+        file.write(f"sent_ACK_packets: {sent_ACK_packets}\n")
+        file.write(f"sent_data_packets: {sent_data_packets}\n=========================\n\n")
+
+    print("Statistics saved to statisticsProxy.txt")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)
