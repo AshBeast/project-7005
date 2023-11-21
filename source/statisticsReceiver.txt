@@ -1,6 +1,36 @@
-Statistics as of 2023-11-18 22:10:26
+Statistics as of 2023-11-20 16:17:50
 
-sent ACK packets: 3
-received data packets: 3
+sent ACK packets: 0
+received data packets: 0
+=========================
+
+Statistics as of 2023-11-20 16:18:10
+
+sent ACK packets: 31
+received data packets: 31
+=========================
+
+Statistics as of 2023-11-20 16:21:22
+
+sent ACK packets: 20
+received data packets: 20
+=========================
+
+Statistics as of 2023-11-20 16:21:47
+
+sent ACK packets: 46
+received data packets: 46
+=========================
+
+Statistics as of 2023-11-20 16:55:52
+
+sent ACK packets: 4
+received data packets: 4
+=========================
+
+Statistics as of 2023-11-20 16:56:10
+
+sent ACK packets: 12
+received data packets: 12
 =========================
 

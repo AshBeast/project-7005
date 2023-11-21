@@ -1,7 +1,10 @@
+import json
 import socket
 import signal
 import sys
 import datetime
+import threading
+import time
 
 #statistics
 sent_data_packets = 0
@@ -11,6 +14,10 @@ received_ACK_packets = 0
 proxy_ip = None
 proxy_port = None
 sock = None
+    #gui variables
+gui_ip = None
+gui_port = None
+gui_socket = None
 
 def sender_init():
     global proxy_ip, proxy_port, sock
@@ -23,9 +30,43 @@ def sender_init():
         proxy_port = int(sys.argv[2])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+        connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
+        if connect_to_gui == "yes":
+            if setup_gui_connection() == 0:
+                threading.Thread(target=send_statistics_to_gui, daemon=True).start()
+            
         handler()
     except Exception as e:
         error(e, "sender_init")
+
+
+def setup_gui_connection():
+    global gui_ip, gui_port, gui_socket
+    try:
+        gui_ip = input("Enter the GUI IP address: ")
+        gui_port = int(input("Enter the GUI port: "))
+        gui_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        gui_socket.connect((gui_ip, gui_port))
+        return 0
+    except Exception as e:
+        print(f"{e}\nGUI not connected")
+        return 1
+
+def send_statistics_to_gui():
+    global sent_data_packets, received_ACK_packets, gui_socket
+    try:
+        while True:
+            if gui_socket:
+                stats = {
+                    "sent_data_packets": sent_data_packets,
+                    "received_ACK_packets": received_ACK_packets
+                }
+                gui_socket.sendall(json.dumps(stats).encode())
+            time.sleep(1)  # Delay to prevent overwhelming the network
+    except Exception as e:
+        print(f"Error in sending statistics to GUI: {e}")
+        gui_socket.close()
+        gui_socket = None
 
 def send_message(message):
     global proxy_ip, proxy_port, sock, sent_data_packets

@@ -56,19 +56,19 @@ def proxy_init():
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.bind(('', listen_port))
             handler()
-            
-        # User input for probabilities
-        drop_data_prob = get_valid_percentage("Enter percentage to drop data (0-100): ")
-        drop_ack_prob = get_valid_percentage("Enter percentage to drop ACK (0-100): ")
-        delay_data_prob = get_valid_percentage("Enter percentage to delay data packets (0-100): ")
-        delay_ack_prob = get_valid_percentage("Enter percentage to delay ACK packets (0-100): ")
-        max_delay = float(input("Enter maximum delay in seconds: "))
 
         receiver_ip = sys.argv[1]
         receiver_port = int(sys.argv[2])
         listen_port = int(sys.argv[3])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', listen_port))
+
+        # User input for probabilities
+        drop_data_prob = get_valid_percentage("Enter percentage to drop data (0-100): ")
+        drop_ack_prob = get_valid_percentage("Enter percentage to drop ACK (0-100): ")
+        delay_data_prob = get_valid_percentage("Enter percentage to delay data packets (0-100): ")
+        delay_ack_prob = get_valid_percentage("Enter percentage to delay ACK packets (0-100): ")
+        max_delay = float(input("Enter maximum delay in seconds: "))
 
         handler()
     except Exception as e:

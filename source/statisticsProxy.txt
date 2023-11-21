@@ -1,12 +1,84 @@
-Statistics as of 2023-11-18 22:10:25
+Statistics as of 2023-11-20 16:17:06
 
 dropped_ACK_packets: 0
-dropped_data_packets: 2
+dropped_data_packets: 0
 delayed_ACK_packets: 0
 delayed_data_packets: 0
-total_ACK_packets: 3
-total_data_packets: 5
-sent_ACK_packets: 3
-sent_data_packets: 3
+total_ACK_packets: 0
+total_data_packets: 0
+sent_ACK_packets: 0
+sent_data_packets: 0
+=========================
+
+Statistics as of 2023-11-20 16:17:27
+
+dropped_ACK_packets: 0
+dropped_data_packets: 0
+delayed_ACK_packets: 0
+delayed_data_packets: 0
+total_ACK_packets: 0
+total_data_packets: 0
+sent_ACK_packets: 0
+sent_data_packets: 0
+=========================
+
+Statistics as of 2023-11-20 16:18:10
+
+dropped_ACK_packets: 1
+dropped_data_packets: 0
+delayed_ACK_packets: 0
+delayed_data_packets: 0
+total_ACK_packets: 17
+total_data_packets: 17
+sent_ACK_packets: 16
+sent_data_packets: 17
+=========================
+
+Statistics as of 2023-11-20 16:21:21
+
+dropped_ACK_packets: 3
+dropped_data_packets: 3
+delayed_ACK_packets: 1
+delayed_data_packets: 0
+total_ACK_packets: 17
+total_data_packets: 20
+sent_ACK_packets: 14
+sent_data_packets: 17
+=========================
+
+Statistics as of 2023-11-20 16:21:48
+
+dropped_ACK_packets: 3
+dropped_data_packets: 0
+delayed_ACK_packets: 2
+delayed_data_packets: 2
+total_ACK_packets: 26
+total_data_packets: 26
+sent_ACK_packets: 23
+sent_data_packets: 26
+=========================
+
+Statistics as of 2023-11-20 16:55:51
+
+dropped_ACK_packets: 0
+dropped_data_packets: 0
+delayed_ACK_packets: 1
+delayed_data_packets: 0
+total_ACK_packets: 4
+total_data_packets: 4
+sent_ACK_packets: 4
+sent_data_packets: 4
+=========================
+
+Statistics as of 2023-11-20 16:56:11
+
+dropped_ACK_packets: 0
+dropped_data_packets: 4
+delayed_ACK_packets: 0
+delayed_data_packets: 0
+total_ACK_packets: 7
+total_data_packets: 11
+sent_ACK_packets: 7
+sent_data_packets: 7
 =========================
 
