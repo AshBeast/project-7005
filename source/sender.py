@@ -133,7 +133,7 @@ def destroy():
     with open("statisticsSender.txt", "a") as file:
         file.write(f"Statistics as of {current_date_time}\n\n")
         file.write(f"sent data packets: {sent_data_packets}\n")
-        file.write(f"received ACK packets: {received_ACK_packets}\n=========================\n\n")
+        file.write(f"received ACK packets: {received_ACK_packets}\n=========================\n")
 
     print("Statistics saved to statisticsSender.txt")
     sys.exit(0)

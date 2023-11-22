@@ -209,7 +209,7 @@ def destroy():
         file.write(f"total_ACK_packets: {total_ACK_packets}\n")
         file.write(f"total_data_packets: {total_data_packets}\n")
         file.write(f"sent_ACK_packets: {sent_ACK_packets}\n")
-        file.write(f"sent_data_packets: {sent_data_packets}\n=========================\n\n")
+        file.write(f"sent_data_packets: {sent_data_packets}\n=========================\n")
 
     print("Statistics saved to statisticsProxy.txt")
     sys.exit(0)
