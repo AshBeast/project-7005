@@ -1,7 +1,10 @@
+import json
 import socket
 import signal
 import sys
 import datetime
+import threading
+import time
 
 #statistics
 sent_ACK_packets = 0
@@ -9,41 +12,95 @@ received_data_packets = 0
 
 # Define global variables
 sock = None
+    #gui variables
+gui_ip = None
+gui_port = None
+gui_socket = None
 
 def receiver():
     global sock, sent_ACK_packets
     try: 
         if len(sys.argv) != 2:
-            print("Usage: python receiver.py [Port]")
-            sys.exit(1)
-
+            raise ValueError("Usage: python receiver.py [Port]")
+        
         port = int(sys.argv[1])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', port))
+
+        connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
+        if connect_to_gui == "yes":
+            if setup_gui_connection() == 0:
+                threading.Thread(target=send_statistics_to_gui, daemon=True).start()
         
         while True:
-            addr = wait_for_data()
-
+            addr, sequence = wait_for_data()
             # Sending ACK
-            ack_message = "ACK"
+            ack_message = f"{sequence}:ACK"
             sent_ACK_packets += 1
             sock.sendto(ack_message.encode(), addr)
 
     except Exception as e:
         error(e, "receiver")
 
+def setup_gui_connection():
+    global gui_ip, gui_port, gui_socket
+    try:
+        gui_ip = input("Enter the GUI IP address: ")
+        gui_port = int(input("Enter the GUI port: "))
+        gui_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        gui_socket.connect((gui_ip, gui_port))
+        return 0
+    except Exception as e:
+        print(f"{e}\nGUI not connected")
+        return 1
+
+def send_statistics_to_gui():
+    global gui_socket
+    try:
+        while True:
+            if gui_socket:
+                stats = {
+                    "client_id": "receiver",
+                    "sent_ACK_packets": sent_ACK_packets,
+                    "received_data_packets": received_data_packets
+                }
+                gui_socket.sendall(json.dumps(stats).encode())
+            time.sleep(1)  # Delay to prevent overwhelming the network
+    except Exception as e:
+        print(f"Error in sending statistics to GUI: {e}")
+        gui_socket.close()
+        gui_socket = None
+
+received_sequences = set()  # To keep track of received sequence numbers
+
 def wait_for_data():
     global sock, received_data_packets
+
     try:
         data, addr = sock.recvfrom(4096)
         if not data:
-            raise ValueError(f"Interesting data {data.decode()}") 
+            raise ValueError("No data received.")
 
+        # Decode the bytes to a string
+        data_str = data.decode()
+
+        # Split the string into sequence and message
+        sequence, message = data_str.split(':', 1)
+        sequence = int(sequence)
+
+        if sequence in received_sequences:
+            print("Duplicate message ignored.")
+            return addr, sequence
+
+        received_sequences.add(sequence)  # Add sequence number to the set of received sequences
         received_data_packets += 1
-        print(f"Received: {data.decode()}")
-        return addr
+        print(f"Received: {message}")
+
+        return addr, sequence
     except Exception as e:
         error(e, "wait_for_data")
+
+
         
     
 def error(message, stateName):
@@ -61,7 +118,7 @@ def destroy():
         print("Closing the socket...")
         sock.close()
     
-    print("statistics\n")
+    print("\nstatistics")
     print(f"sent ACK packets: {sent_ACK_packets}")
     print(f"received data packets: {received_data_packets}")
 

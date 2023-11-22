@@ -8,11 +8,15 @@ from queue import Queue
 import sys
 
 # Global variables to hold data for plotting
-sent_data_packets = []
-received_ACK_packets = []
+data_queues = {
+    'sender': Queue(),
+    'receiver': Queue(),
+    'proxy': Queue()
+}
 time_stamps = []
+need_update = {'sender': False, 'receiver': False, 'proxy': False}
 
-def start_server(ip, port, data_queue):
+def start_server(ip, port):
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.bind((ip, port))
@@ -22,42 +26,109 @@ def start_server(ip, port, data_queue):
         while True:
             client, addr = server_socket.accept()
             print(f"Connection from {addr}")
-            threading.Thread(target=handle_client, args=(client, data_queue)).start()
+            threading.Thread(target=handle_client, args=(client,)).start()
     except Exception as e:
         print("Error starting the server", str(e))
 
-def handle_client(client, data_queue):
+def handle_client(client):
     while True:
         data = client.recv(1024).decode()
         if not data:
             break
         print(f"Received data: {data}")  # Debugging line
-        data_queue.put(json.loads(data))
+        data_json = json.loads(data)
+        client_id = data_json.get('client_id')
+        if client_id in data_queues:
+            data_queues[client_id].put(data_json)
+            need_update[client_id] = True
 
-def update_graph(data_queue, ax, canvas, fig):
-    global sent_data_packets, received_ACK_packets, time_stamps
-    while not data_queue.empty():
-        data = data_queue.get()
-        print(f"Updating graph with data: {data}")  # Debugging line
-        # Append new data to the lists
-        sent_data_packets.append(data["sent_data_packets"])
-        received_ACK_packets.append(data["received_ACK_packets"])
-        time_stamps.append(len(time_stamps))  # Assuming each update is at a regular interval
+def create_client_window(client_id, title):
+    window = tk.Toplevel()
+    window.title(title)
 
-    # Clear the current plot
-    ax.clear()
+    fig, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas.get_tk_widget().pack()
 
-    # Plot new data
-    if time_stamps:
-        ax.plot(time_stamps, sent_data_packets, label='Sent Data Packets')
-        ax.plot(time_stamps, received_ACK_packets, label='Received ACK Packets')
-        ax.legend()
+    # Initialize Statistics lists for plotting
+        #sender Statistics
+    sent_data_packets = []
+    received_ACK_packets = []
+        #receiver Statistics
+    sent_ACK_packets = []
+    received_data_packets = []
+    time_stamps = []
+        #proxy Statistics
+    dropped_ACK_packets = []
+    dropped_data_packets = []
+    delayed_ACK_packets = []
+    delayed_data_packets = []
+    total_ACK_packets = []
+    total_data_packets = []
 
-        # Redraw the canvas
-        canvas.draw()
+    def update_graph():
+        nonlocal sent_data_packets, received_ACK_packets, sent_ACK_packets, received_data_packets, \
+        dropped_ACK_packets, dropped_data_packets, delayed_ACK_packets, delayed_data_packets, total_ACK_packets, total_data_packets, time_stamps
+        try:
+            if need_update[client_id]:
+                data_queue = data_queues[client_id]
+                while not data_queue.empty():
+                    data = data_queue.get()
+                    print(f"Updating {client_id} graph with data: {data}")  # Debugging line
 
-    # Schedule the next update
-    root.after(1000, update_graph, data_queue, ax, canvas, fig)
+                    if client_id == 'sender':
+                        sent_data_packets.append(data['sent_data_packets'])
+                        received_ACK_packets.append(data['received_ACK_packets'])
+                        time_stamps.append(len(time_stamps))
+                        if time_stamps:
+                            ax.clear()
+                            ax.plot(time_stamps, sent_data_packets, label='Sent Data Packets')
+                            ax.plot(time_stamps, received_ACK_packets, label='Received ACK Packets')
+                            ax.legend()
+                            ax.set_xlabel('Time (Updates)')
+                            ax.set_ylabel('Packet Count')
+
+                    elif client_id == 'receiver':
+                        sent_ACK_packets.append(data['sent_ACK_packets'])
+                        received_data_packets.append(data['received_data_packets'])
+                        time_stamps.append(len(time_stamps))
+                        if time_stamps:
+                            ax.clear()
+                            ax.plot(time_stamps, sent_ACK_packets, label='Sent ACK Packets')
+                            ax.plot(time_stamps, received_data_packets, label='Received Data Packets')
+                            ax.legend()
+                            ax.set_xlabel('Time (Updates)')
+                            ax.set_ylabel('Packet Count')
+
+                    elif client_id == 'proxy':
+                        dropped_ACK_packets.append(data["dropped_ACK_packets"])
+                        dropped_data_packets.append(data["dropped_data_packets"])
+                        delayed_ACK_packets.append(data["delayed_ACK_packets"])
+                        delayed_data_packets.append(data["delayed_data_packets"])
+                        total_ACK_packets.append(data["total_ACK_packets"])
+                        total_data_packets.append(data["total_data_packets"])
+                        time_stamps.append(len(time_stamps))
+                        if time_stamps:
+                            ax.clear()
+                            ax.plot(time_stamps, dropped_ACK_packets, label='Dropped ACK Packets')
+                            ax.plot(time_stamps, dropped_data_packets, label='Dropped Data Packets')
+                            ax.plot(time_stamps, delayed_ACK_packets, label='Delayed ACK Packets')
+                            ax.plot(time_stamps, delayed_data_packets, label='Delayed Data Packets')
+                            ax.plot(time_stamps, total_ACK_packets, label='Total ACK Packets')
+                            ax.plot(time_stamps, total_data_packets, label='Total Data Packets')
+                            ax.legend()
+                            ax.set_xlabel('Time (Updates)')
+                            ax.set_ylabel('Packet Count')
+                            
+                canvas.draw()
+                need_update[client_id] = False
+        except Exception as e:
+            print(f"Error in update_graph for {client_id}: {e}")
+
+        window.after(1000, update_graph)
+
+    window.after(1000, update_graph)
+    return window
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -68,12 +139,11 @@ if __name__ == "__main__":
     port = int(sys.argv[2])
 
     root = tk.Tk()
-    data_queue = Queue()
+    root.withdraw()  # Hide the main window
 
-    fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master=root)
-    canvas.get_tk_widget().pack()
+    sender_window = create_client_window('sender', 'Sender Statistics')
+    receiver_window = create_client_window('receiver', 'Receiver Statistics')
+    proxy_window = create_client_window('proxy', 'Proxy Statistics')
 
-    threading.Thread(target=start_server, args=(ip, port, data_queue), daemon=True).start()
-    root.after(1000, update_graph, data_queue, ax, canvas, fig)
+    threading.Thread(target=start_server, args=(ip, port), daemon=True).start()
     root.mainloop()

@@ -58,6 +58,7 @@ def send_statistics_to_gui():
         while True:
             if gui_socket:
                 stats = {
+                    "client_id": "sender",
                     "sent_data_packets": sent_data_packets,
                     "received_ACK_packets": received_ACK_packets
                 }
@@ -79,14 +80,18 @@ def send_message(message):
     except Exception as e:
         error(e, "make_message_state")
 
-def wait_for_ACK():
+def wait_for_ACK(sequence):
     global sock, received_ACK_packets
     try:
         sock.settimeout(2.0)  # Set timeout for ACK
         data, server = sock.recvfrom(4096)
-        received_ACK_packets += 1
-        print(f"Received ACK: {data.decode()}")
-        return 0
+        data = data.decode().strip()
+        if (data== str(sequence)+":ACK"):
+            received_ACK_packets += 1
+            print(f"Received ACK: {data}")
+            return 0
+        print(f"broke: {data} \nneed: " + str(sequence)+":ACK")
+        return 1
     except socket.timeout:
         print("No ACK received.\n")
         return 1
@@ -94,12 +99,14 @@ def wait_for_ACK():
         error(e, "wait_for_ACK")
 
 def handler():
+    sequence = 0
     while True:
         message = input("Enter message to send: ")
-        send_message(message)
-        while (wait_for_ACK() != 0):
+        sequence += 1
+        send_message(f"{sequence}" + ":"+ message)
+        while (wait_for_ACK(sequence) != 0):
             print("Resending message...")
-            send_message(message)
+            send_message(f"{sequence}" + ":"+ message)
 
 def error(message, stateName):
     print(f"\nError Message: {message}\nState: {stateName}")
@@ -134,4 +141,3 @@ def destroy():
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)
     sender_init()
-

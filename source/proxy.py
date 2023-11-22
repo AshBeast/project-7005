@@ -1,7 +1,9 @@
+import json
 import socket
 import signal
 import random
 import datetime
+import threading
 import time
 import sys
 
@@ -27,6 +29,10 @@ receiver_ip = None
 receiver_port = None
 listen_port = None
 sock = None
+    #gui variables
+gui_ip = None
+gui_port = None
+gui_socket = None
 
 def get_valid_percentage(prompt):
     while True:
@@ -44,18 +50,45 @@ def get_valid_percentage(prompt):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+def setup_gui_connection():
+    global gui_ip, gui_port, gui_socket
+    try:
+        gui_ip = input("Enter the GUI IP address: ")
+        gui_port = int(input("Enter the GUI port: "))
+        gui_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        gui_socket.connect((gui_ip, gui_port))
+        return 0
+    except Exception as e:
+        print(f"{e}\nGUI not connected")
+        return 1
+
+def send_statistics_to_gui():
+    global sent_data_packets, received_ACK_packets, gui_socket
+    try:
+        while True:
+            if gui_socket:
+                stats = {
+                    "client_id": "proxy",
+                    "dropped_ACK_packets": dropped_ACK_packets,
+                    "dropped_data_packets": dropped_data_packets,
+                    "delayed_ACK_packets": delayed_ACK_packets,
+                    "delayed_data_packets": delayed_data_packets,
+                    "total_ACK_packets": total_ACK_packets,
+                    "total_data_packets": total_data_packets
+                }
+                gui_socket.sendall(json.dumps(stats).encode())
+            time.sleep(1)  # Delay to prevent overwhelming the network
+    except Exception as e:
+        print(f"Error in sending statistics to GUI: {e}")
+        gui_socket.close()
+        gui_socket = None
+
 def proxy_init():
     try: 
         global receiver_ip, receiver_port, listen_port, sock, \
             drop_data_prob, drop_ack_prob, delay_data_prob, delay_ack_prob, max_delay
         if len(sys.argv) != 4:
-            # raise ValueError("Usage: python proxy.py [Receiver IP] [Receiver Port] [Listen Port]")
-            receiver_ip = "10.0.0.210"
-            receiver_port = 12345
-            listen_port = 1234
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.bind(('', listen_port))
-            handler()
+            raise ValueError("Usage: python proxy.py [Receiver IP] [Receiver Port] [Listen Port]")
 
         receiver_ip = sys.argv[1]
         receiver_port = int(sys.argv[2])
@@ -63,6 +96,11 @@ def proxy_init():
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', listen_port))
 
+        connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
+        if connect_to_gui == "yes":
+            if setup_gui_connection() == 0:
+                threading.Thread(target=send_statistics_to_gui, daemon=True).start()
+                
         # User input for probabilities
         drop_data_prob = get_valid_percentage("Enter percentage to drop data (0-100): ")
         drop_ack_prob = get_valid_percentage("Enter percentage to drop ACK (0-100): ")
@@ -176,7 +214,7 @@ def destroy():
     print("Statistics saved to statisticsProxy.txt")
     sys.exit(0)
 
-
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)
     proxy_init()
+    
