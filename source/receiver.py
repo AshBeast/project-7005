@@ -17,6 +17,8 @@ gui_ip = None
 gui_port = None
 gui_socket = None
 
+received_sequences = 0  # To keep track of received sequence numbers
+
 def receiver():
     global sock, sent_ACK_packets
     try: 
@@ -71,10 +73,10 @@ def send_statistics_to_gui():
         gui_socket.close()
         gui_socket = None
 
-received_sequences = set()  # To keep track of received sequence numbers
+
 
 def wait_for_data():
-    global sock, received_data_packets
+    global sock, received_data_packets, received_sequences
 
     try:
         data, addr = sock.recvfrom(4096)
@@ -84,17 +86,22 @@ def wait_for_data():
         # Decode the bytes to a string
         data_str = data.decode()
 
+        if (data_str == "end"):
+            received_sequences = 0
+            print("test")
+            return addr, "end"
+        
         # Split the string into sequence and message
         sequence, message = data_str.split(':', 1)
         sequence = int(sequence)
 
-        if sequence in received_sequences:
+        if sequence <= received_sequences:
             print("Duplicate message ignored.")
             return addr, sequence
 
-        received_sequences.add(sequence)  # Add sequence number to the set of received sequences
+        received_sequences = sequence  # Add sequence number to the set of received sequences
         received_data_packets += 1
-        print(f"Received: {message}")
+        print(f"{message}")
 
         return addr, sequence
     except Exception as e:
