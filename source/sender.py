@@ -19,8 +19,11 @@ gui_ip = None
 gui_port = None
 gui_socket = None
 
+# Global string for storing redirected input
+file_string = ""
+
 def sender_init():
-    global proxy_ip, proxy_port, sock
+    global proxy_ip, proxy_port, sock, file_string
 
     try:
         if len(sys.argv) != 3:
@@ -29,6 +32,12 @@ def sender_init():
         proxy_ip = sys.argv[1]
         proxy_port = int(sys.argv[2])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        if not sys.stdin.isatty():
+            print(f"Getting a file")
+            file_string = sys.stdin.read()
+            # Reset stdin to read from terminal
+            sys.stdin = open('/dev/tty')    
 
         connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
         if connect_to_gui == "yes":
@@ -100,8 +109,16 @@ def wait_for_ACK(sequence):
 
 def handler():
     sequence = 0
+    string_chunks = None
+    if (file_string):
+        string_chunks = [file_string[i:i+3000] for i in range(0, len(file_string), 3000)]
+
     while True:
-        message = input("Enter message to send: ")
+        message = None
+        if (string_chunks):
+            message = string_chunks.pop(0)
+        else:
+            message = input("Enter message to send: ")
         sequence += 1
         send_message(f"{sequence}" + ":"+ message)
         while (wait_for_ACK(sequence) != 0):
@@ -121,6 +138,14 @@ def destroy():
     #if socket exists close it
     if sock:
         print("Closing the socket...")
+        send_message("end")
+        count = 1
+        while (wait_for_ACK("end") != 0):
+            if (count == 5):
+                print("failed send \"end\" please close receiver")
+                break
+            send_message("end")
+            count += 1
         sock.close()
 
     print("statistics\n")
