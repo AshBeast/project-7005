@@ -19,11 +19,8 @@ gui_ip = None
 gui_port = None
 gui_socket = None
 
-# Global string for storing redirected input
-file_string = ""
-
 def sender_init():
-    global proxy_ip, proxy_port, sock, file_string
+    global proxy_ip, proxy_port, sock
 
     try:
         if len(sys.argv) != 3:
@@ -33,16 +30,11 @@ def sender_init():
         proxy_port = int(sys.argv[2])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        if not sys.stdin.isatty():
-            print(f"Getting a file")
-            file_string = sys.stdin.read()
-            # Reset stdin to read from terminal
-            sys.stdin = open('/dev/tty')    
-
-        connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
-        if connect_to_gui == "yes":
-            if setup_gui_connection() == 0:
-                threading.Thread(target=send_statistics_to_gui, daemon=True).start()
+        # connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
+        
+        # if connect_to_gui == "yes":
+        #     if setup_gui_connection() == 0:
+        #         threading.Thread(target=send_statistics_to_gui, daemon=True).start()
             
         handler()
     except Exception as e:
@@ -92,7 +84,7 @@ def send_message(message):
 def wait_for_ACK(sequence):
     global sock, received_ACK_packets
     try:
-        sock.settimeout(2.0)  # Set timeout for ACK
+        sock.settimeout(1.0)  # Set timeout for ACK
         data, server = sock.recvfrom(4096)
         data = data.decode().strip()
         if (data== str(sequence)+":ACK"):
@@ -109,21 +101,35 @@ def wait_for_ACK(sequence):
 
 def handler():
     sequence = 0
-    string_chunks = None
-    if (file_string):
-        string_chunks = [file_string[i:i+3000] for i in range(0, len(file_string), 3000)]
+    message_buffer = ''
+    max_chunk_size = 3000  # Maximum chunk size in bytes
 
-    while True:
-        message = None
-        if (string_chunks):
-            message = string_chunks.pop(0)
-        else:
-            message = input("Enter message to send: ")
+    for line in sys.stdin:
+        if line:  # Only add non-empty lines
+            message_buffer += line
+
+            # Check if the buffer size is at least 3000 bytes
+            while len(message_buffer.encode('utf-8')) >= max_chunk_size:
+                # Split the buffer into a chunk and the remainder
+                chunk, message_buffer = message_buffer[:max_chunk_size], message_buffer[max_chunk_size:]
+                sequence += 1
+                send_message(f"{sequence}:{chunk}")
+                while wait_for_ACK(sequence) != 0:
+                    print("Resending message...")
+                    send_message(f"{sequence}:{chunk}")
+
+    # Send any remaining part of the message
+    if message_buffer:
         sequence += 1
-        send_message(f"{sequence}" + ":"+ message)
-        while (wait_for_ACK(sequence) != 0):
+        send_message(f"{sequence}:{message_buffer}")
+        while wait_for_ACK(sequence) != 0:
             print("Resending message...")
-            send_message(f"{sequence}" + ":"+ message)
+            send_message(f"{sequence}:{message_buffer}")
+
+    print("End of input reached or no more input.")
+    destroy()
+
+
 
 def error(message, stateName):
     print(f"\nError Message: {message}\nState: {stateName}")
@@ -138,13 +144,13 @@ def destroy():
     #if socket exists close it
     if sock:
         print("Closing the socket...")
-        send_message("end")
+        send_message("0:end")
         count = 1
-        while (wait_for_ACK("end") != 0):
+        while (wait_for_ACK(0) != 0):
             if (count == 5):
                 print("failed send \"end\" please close receiver")
                 break
-            send_message("end")
+            send_message("0:end")
             count += 1
         sock.close()
 

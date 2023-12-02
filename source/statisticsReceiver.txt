@@ -113,3 +113,213 @@ Statistics as of 2023-12-01 16:03:30
 sent ACK packets: 0
 received data packets: 0
 =========================
+Statistics as of 2023-12-01 22:05:44
+
+sent ACK packets: 7
+received data packets: 4
+=========================
+Statistics as of 2023-12-01 22:34:29
+
+sent ACK packets: 33
+received data packets: 13
+=========================
+Statistics as of 2023-12-01 22:57:04
+
+sent ACK packets: 47
+received data packets: 8
+=========================
+Statistics as of 2023-12-01 23:06:31
+
+sent ACK packets: 188
+received data packets: 26
+=========================
+Statistics as of 2023-12-01 23:07:27
+
+sent ACK packets: 14
+received data packets: 6
+=========================
+Statistics as of 2023-12-01 23:09:43
+
+sent ACK packets: 11
+received data packets: 7
+=========================
+Statistics as of 2023-12-02 00:09:49
+
+sent ACK packets: 4
+received data packets: 3
+=========================
+Statistics as of 2023-12-02 00:21:09
+
+sent ACK packets: 11
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 00:22:23
+
+sent ACK packets: 1
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 00:24:49
+
+sent ACK packets: 1
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 02:50:17
+
+sent ACK packets: 0
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 02:53:43
+
+sent ACK packets: 1
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 02:54:01
+
+sent ACK packets: 1
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 02:57:45
+
+sent ACK packets: 2
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 03:00:42
+
+sent ACK packets: 2
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 03:02:18
+
+sent ACK packets: 2
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 03:07:20
+
+sent ACK packets: 2
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 03:09:55
+
+sent ACK packets: 10
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 03:11:02
+
+sent ACK packets: 14
+received data packets: 14
+=========================
+Statistics as of 2023-12-02 03:14:14
+
+sent ACK packets: 10
+received data packets: 10
+=========================
+Statistics as of 2023-12-02 03:15:09
+
+sent ACK packets: 10
+received data packets: 10
+=========================
+Statistics as of 2023-12-02 03:15:19
+
+sent ACK packets: 6
+received data packets: 6
+=========================
+Statistics as of 2023-12-02 03:18:22
+
+sent ACK packets: 10
+received data packets: 10
+=========================
+Statistics as of 2023-12-02 03:20:41
+
+sent ACK packets: 32
+received data packets: 21
+=========================
+Statistics as of 2023-12-02 13:14:31
+
+sent ACK packets: 8
+received data packets: 8
+=========================
+Statistics as of 2023-12-02 13:16:54
+
+sent ACK packets: 2
+received data packets: 2
+=========================
+Statistics as of 2023-12-02 13:18:02
+
+sent ACK packets: 3
+received data packets: 3
+=========================
+Statistics as of 2023-12-02 13:18:27
+
+sent ACK packets: 4
+received data packets: 4
+=========================
+Statistics as of 2023-12-02 13:19:36
+
+sent ACK packets: 1
+received data packets: 1
+=========================
+Statistics as of 2023-12-02 13:27:08
+
+sent ACK packets: 10
+received data packets: 10
+=========================
+Statistics as of 2023-12-02 13:27:21
+
+sent ACK packets: 1
+received data packets: 1
+=========================
+Statistics as of 2023-12-02 13:32:51
+
+sent ACK packets: 5
+received data packets: 5
+=========================
+Statistics as of 2023-12-02 13:40:07
+
+sent ACK packets: 0
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 13:40:23
+
+sent ACK packets: 0
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 13:46:05
+
+sent ACK packets: 0
+received data packets: 0
+=========================
+Statistics as of 2023-12-02 14:05:17
+
+sent ACK packets: 23
+received data packets: 6
+=========================
+Statistics as of 2023-12-02 14:06:39
+
+sent ACK packets: 12
+received data packets: 7
+=========================
+Statistics as of 2023-12-02 14:08:09
+
+sent ACK packets: 10
+received data packets: 1
+=========================
+Statistics as of 2023-12-02 14:20:51
+
+sent ACK packets: 58
+received data packets: 42
+=========================
+Statistics as of 2023-12-02 14:22:49
+
+sent ACK packets: 4
+received data packets: 4
+=========================
+Statistics as of 2023-12-02 14:25:15
+
+sent ACK packets: 4
+received data packets: 4
+=========================
+Statistics as of 2023-12-02 14:33:31
+
+sent ACK packets: 16
+received data packets: 9
+=========================
