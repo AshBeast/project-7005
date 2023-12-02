@@ -1,0 +1,22 @@
+Statistics as of 2023-12-01 21:21:19
+
+dropped_ACK_packets: 0
+dropped_data_packets: 0
+delayed_ACK_packets: 0
+delayed_data_packets: 0
+total_ACK_packets: 0
+total_data_packets: 0
+sent_ACK_packets: 0
+sent_data_packets: 0
+=========================
+Statistics as of 2023-12-01 21:59:27
+
+dropped_ACK_packets: 1
+dropped_data_packets: 0
+delayed_ACK_packets: 1
+delayed_data_packets: 0
+total_ACK_packets: 10
+total_data_packets: 10
+sent_ACK_packets: 9
+sent_data_packets: 10
+=========================
