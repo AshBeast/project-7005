@@ -5,6 +5,8 @@ import sys
 import datetime
 import threading
 import time
+import argparse
+import ipaddress
 
 #statistics
 sent_data_packets = 0
@@ -26,11 +28,10 @@ def sender_init():
     global proxy_ip, proxy_port, sock, file_string
 
     try:
-        if len(sys.argv) != 3:
-            raise ValueError("Usage: python sender.py [Proxy IP] [Proxy Port]")
+        args = arg_handler()
 
-        proxy_ip = sys.argv[1]
-        proxy_port = int(sys.argv[2])
+        proxy_ip = args.proxy_ip[0]
+        proxy_port = args.proxy_port[0]
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         if not sys.stdin.isatty():
@@ -47,6 +48,44 @@ def sender_init():
         handler()
     except Exception as e:
         error(e, "sender_init")
+
+
+# Parses and handles all commandline arguments
+def arg_handler():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "proxy_ip",
+        nargs=1,
+        type=valid_ip,
+        help="Enter a valid IPv4 or IPv6 address"
+    )
+    parser.add_argument(
+        "proxy_port",
+        nargs=1,
+        type=valid_port,
+        help="Enter a port between 1024 and 65535"
+    )
+    return parser.parse_args()
+
+# Check for valid ipv4 or ipv6
+def valid_ip(host):
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Not a valid IPv4 or IPv6 address")
+    return host
+
+
+# Check for valid port
+def valid_port(port):
+    try:
+        p = int(port)
+    except ValueError:
+        raise argparse.ArgumentTypeError('Port must be an integer between 1024 and 65535')
+    if p < 1024 or p > 65535:
+        raise argparse.ArgumentTypeError('Port must be between 1024 and 65535')
+    return p
+
 
 
 def setup_gui_connection():

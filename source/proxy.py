@@ -6,6 +6,8 @@ import datetime
 import threading
 import time
 import sys
+import argparse
+import ipaddress
 
 #statistics
 dropped_ACK_packets = 0
@@ -50,6 +52,48 @@ def get_valid_percentage(prompt):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+# Parses and handles all commandline arguments
+def arg_handler():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "receiver_ip",
+        nargs=1,
+        type=valid_ip,
+        help="Enter a valid IPv4 or IPv6 address"
+    )
+    parser.add_argument(
+        "receiver_port",
+        nargs=1,
+        type=valid_port,
+        help="Enter a port between 1024 and 65535"
+    )
+    parser.add_argument(
+        "listener_port",
+        nargs=1,
+        type=valid_port,
+        help="Enter a port between 1024 and 65535"
+    )
+    return parser.parse_args()
+
+# Check for valid ipv4 or ipv6
+def valid_ip(host):
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Not a valid IPv4 or IPv6 address")
+    return host
+
+
+# Check for valid port
+def valid_port(port):
+    try:
+        p = int(port)
+    except ValueError:
+        raise argparse.ArgumentTypeError('Port must be an integer between 1024 and 65535')
+    if p < 1024 or p > 65535:
+        raise argparse.ArgumentTypeError('Port must be between 1024 and 65535')
+    return p
+
 def setup_gui_connection():
     global gui_ip, gui_port, gui_socket
     try:
@@ -87,12 +131,12 @@ def proxy_init():
     try: 
         global receiver_ip, receiver_port, listen_port, sock, \
             drop_data_prob, drop_ack_prob, delay_data_prob, delay_ack_prob, max_delay
-        if len(sys.argv) != 4:
-            raise ValueError("Usage: python proxy.py [Receiver IP] [Receiver Port] [Listen Port]")
 
-        receiver_ip = sys.argv[1]
-        receiver_port = int(sys.argv[2])
-        listen_port = int(sys.argv[3])
+        args = arg_handler()
+
+        receiver_ip = args.receiver_ip[0]
+        receiver_port = args.receiver_port[0]
+        listen_port = args.listener_port[0]
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', listen_port))
 

@@ -224,3 +224,23 @@ Statistics as of 2023-12-01 16:03:40
 sent data packets: 10
 received ACK packets: 0
 =========================
+Statistics as of 2023-12-01 23:05:25
+
+sent data packets: 12
+received ACK packets: 2
+=========================
+Statistics as of 2023-12-02 14:43:29
+
+sent data packets: 17
+received ACK packets: 2
+=========================
+Statistics as of 2023-12-02 14:57:06
+
+sent data packets: 4
+received ACK packets: 4
+=========================
+Statistics as of 2023-12-02 15:03:06
+
+sent data packets: 2
+received ACK packets: 2
+=========================

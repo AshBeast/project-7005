@@ -5,6 +5,7 @@ import sys
 import datetime
 import threading
 import time
+import argparse
 
 #statistics
 sent_ACK_packets = 0
@@ -22,10 +23,9 @@ received_sequences = 0  # To keep track of received sequence numbers
 def receiver():
     global sock, sent_ACK_packets
     try: 
-        if len(sys.argv) != 2:
-            raise ValueError("Usage: python receiver.py [Port]")
+        args = arg_handler()
         
-        port = int(sys.argv[1])
+        port = args.port[0]
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', port))
 
@@ -43,6 +43,28 @@ def receiver():
 
     except Exception as e:
         error(e, "receiver")
+
+# Parses and handles all commandline arguments
+def arg_handler():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "port",
+        nargs=1,
+        type=valid_port,
+        help="Enter a port between 1024 and 65535"
+    )
+    return parser.parse_args()
+
+# Check for valid port
+def valid_port(port):
+    try:
+        p = int(port)
+    except ValueError:
+        raise argparse.ArgumentTypeError('Port must be an integer between 1024 and 65535')
+    if p < 1024 or p > 65535:
+        raise argparse.ArgumentTypeError('Port must be between 1024 and 65535')
+    return p
+
 
 def setup_gui_connection():
     global gui_ip, gui_port, gui_socket
