@@ -108,22 +108,21 @@ def wait_for_data():
         # Decode the bytes to a string
         data_str = data.decode()
 
-        if (data_str == "end"):
-            received_sequences = 0
-            print("test")
-            return addr, "end"
-        
-        # Split the string into sequence and message
         sequence, message = data_str.split(':', 1)
         sequence = int(sequence)
 
-        if sequence <= received_sequences:
+        if sequence <= received_sequences and sequence != 0:
             print("Duplicate message ignored.")
             return addr, sequence
 
         received_sequences = sequence  # Add sequence number to the set of received sequences
         received_data_packets += 1
         print(f"{message}")
+
+
+        if (data_str == "0:end"):
+            received_sequences = 0
+            print(f"test{sequence}")
 
         return addr, sequence
     except Exception as e:
