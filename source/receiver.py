@@ -19,7 +19,7 @@ gui_socket = None
 
 received_sequences = 0  # To keep track of received sequence numbers
 
-def receiver():
+def receiver_init():
     global sock
     try: 
         if len(sys.argv) != 2:
@@ -36,7 +36,7 @@ def receiver():
 
         handler()
     except Exception as e:
-        error(e, "receiver")
+        error(e, "receiver_init")
 
 def handler():
     global sock, sent_ACK_packets
@@ -144,4 +144,4 @@ def destroy():
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)
-    receiver()
+    receiver_init()
