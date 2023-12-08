@@ -153,8 +153,12 @@ def handler():
                 chunk, message_buffer = message_buffer[:max_chunk_size], message_buffer[max_chunk_size:]
                 sequence += 1
                 send_message(f"{sequence}:{chunk}")
+                count = 0
                 while wait_for_ACK(sequence) != 0:
+                    if (count > 20):
+                        error("we tried sending this packet more than 20 times")
                     print("Resending message...")
+                    count += 1
                     send_message(f"{sequence}:{chunk}")
 
     # Send any remaining part of the message

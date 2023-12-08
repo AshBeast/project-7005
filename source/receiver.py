@@ -20,8 +20,8 @@ gui_socket = None
 
 received_sequences = 0  # To keep track of received sequence numbers
 
-def receiver():
-    global sock, sent_ACK_packets
+def receiver_init():
+    global sock
     try: 
         args = arg_handler()
         
@@ -33,16 +33,22 @@ def receiver():
         if connect_to_gui == "yes":
             if setup_gui_connection() == 0:
                 threading.Thread(target=send_statistics_to_gui, daemon=True).start()
-        
+
+        handler()
+    except Exception as e:
+        error(e, "receiver_init")
+
+def handler():
+    global sock, sent_ACK_packets
+    try:
         while True:
             addr, sequence = wait_for_data()
             # Sending ACK
             ack_message = f"{sequence}:ACK"
             sent_ACK_packets += 1
             sock.sendto(ack_message.encode(), addr)
-
     except Exception as e:
-        error(e, "receiver")
+        error(e, "handler")
 
 # Parses and handles all commandline arguments
 def arg_handler():
@@ -112,17 +118,15 @@ def wait_for_data():
         sequence = int(sequence)
 
         if sequence <= received_sequences and sequence != 0:
-            print("Duplicate message ignored.")
             return addr, sequence
 
         received_sequences = sequence  # Add sequence number to the set of received sequences
         received_data_packets += 1
-        print(f"{message}")
-
 
         if (data_str == "0:end"):
             received_sequences = 0
-            print(f"test{sequence}")
+        else:
+            print(f"{message}")
 
         return addr, sequence
     except Exception as e:
@@ -162,4 +166,4 @@ def destroy():
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)
-    receiver()
+    receiver_init()
