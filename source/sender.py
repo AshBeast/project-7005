@@ -7,6 +7,7 @@ import threading
 import time
 import argparse
 import ipaddress
+import fileinput
 
 #statistics
 sent_data_packets = 0
@@ -31,13 +32,13 @@ def sender_init():
         proxy_port = args.proxy_port[0]
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        # connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
+        connect_to_gui = input("Do you want to connect to the GUI? (yes/no): ").lower()
         
-        # if connect_to_gui == "yes":
-        #     if setup_gui_connection() == 0:
-        #         threading.Thread(target=send_statistics_to_gui, daemon=True).start()
+        if connect_to_gui == "yes":
+            if setup_gui_connection() == 0:
+                threading.Thread(target=send_statistics_to_gui, daemon=True).start()
             
-        handler()
+        handler(args)
     except Exception as e:
         error(e, "sender_init")
 
@@ -138,14 +139,18 @@ def wait_for_ACK(sequence):
     except Exception as e:
         error(e, "wait_for_ACK")
 
-def handler():
+def handler(args):
     sequence = 0
     message_buffer = ''
     max_chunk_size = 3000  # Maximum chunk size in bytes
-
     for line in sys.stdin:
+        if line[0] == "<":
+            line = line[1:]
+            line = line.strip()
+            with open(line, 'r') as f:
+                line = f.read()
         if line:  # Only add non-empty lines
-            message_buffer += line
+            message_buffer = line
 
             # Check if the buffer size is at least 3000 bytes
             while len(message_buffer.encode('utf-8')) >= max_chunk_size:
@@ -161,13 +166,13 @@ def handler():
                     count += 1
                     send_message(f"{sequence}:{chunk}")
 
-    # Send any remaining part of the message
-    if message_buffer:
-        sequence += 1
-        send_message(f"{sequence}:{message_buffer}")
-        while wait_for_ACK(sequence) != 0:
-            print("Resending message...")
-            send_message(f"{sequence}:{message_buffer}")
+            # Send any remaining part of the message
+            if message_buffer:
+                sequence += 1
+                send_message(f"{sequence}:{message_buffer}")
+                while wait_for_ACK(sequence) != 0:
+                    print("Resending message...")
+                    send_message(f"{sequence}:{message_buffer}")
 
     print("End of input reached or no more input.")
     destroy()
