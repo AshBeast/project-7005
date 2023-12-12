@@ -333,3 +333,48 @@ Statistics as of 2023-12-08 01:31:49
 sent ACK packets: 6
 received data packets: 4
 =========================
+Statistics as of 2023-12-08 21:18:16
+
+sent ACK packets: 28
+received data packets: 24
+=========================
+Statistics as of 2023-12-08 21:18:16
+
+sent ACK packets: 28
+received data packets: 24
+=========================
+Statistics as of 2023-12-08 21:21:51
+
+sent ACK packets: 4
+received data packets: 3
+=========================
+Statistics as of 2023-12-08 21:27:15
+
+sent ACK packets: 13
+received data packets: 9
+=========================
+Statistics as of 2023-12-08 21:27:19
+
+sent ACK packets: 0
+received data packets: 0
+=========================
+Statistics as of 2023-12-08 22:50:21
+
+sent ACK packets: 16
+received data packets: 12
+=========================
+Statistics as of 2023-12-08 23:23:37
+
+sent ACK packets: 5
+received data packets: 5
+=========================
+Statistics as of 2023-12-08 23:28:54
+
+sent ACK packets: 6
+received data packets: 6
+=========================
+Statistics as of 2023-12-08 23:36:53
+
+sent ACK packets: 4
+received data packets: 4
+=========================
