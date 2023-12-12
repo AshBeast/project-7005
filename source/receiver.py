@@ -126,7 +126,7 @@ def wait_for_data():
         if (data_str == "0:end"):
             received_sequences = 0
         else:
-            print(f"{message}")
+            print(f"{message}", end="")
 
         return addr, sequence
     except Exception as e:
