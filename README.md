@@ -1,28 +1,15 @@
 # Reliable Protocol
+
 ## User Guide
 
 ### Authors:
+
 - Ashkan Zahedanaraki
-- Gagan [Lastname]
+- Gagan Bahugun
 
 ### Date:
+
 - December 12th, 2023
-
----
-
-## Table of Contents
-
-1. Purpose
-2. Prerequisites
-3. Installing
-   - Obtaining
-   - Running
-4. Features
-5. Built-in Commands
-6. Limitations
-7. Examples
-
----
 
 ## 1. Purpose
 
@@ -50,3 +37,4 @@ The code can be found in the `sources` directory of the provided ZIP file or clo
 ```bash
 git clone https://github.com/AshBeast/project-7005.git
 
+```
