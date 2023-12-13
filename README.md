@@ -32,7 +32,7 @@ Before you begin, ensure you have the following:
 
 ### Obtaining
 
-The code can be found in the `sources` directory of the provided ZIP file or cloned from GitHub:
+The code can be found in the `sources` directory
 
 ```bash
 git clone https://github.com/AshBeast/project-7005.git
