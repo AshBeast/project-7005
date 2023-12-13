@@ -140,39 +140,42 @@ def wait_for_ACK(sequence):
         error(e, "wait_for_ACK")
 
 def handler(args):
-    sequence = 0
-    message_buffer = ''
-    max_chunk_size = 3000  # Maximum chunk size in bytes
-    for line in sys.stdin:
-        if line[0] == "<":
-            line = line[1:]
-            line = line.strip()
-            with open(line, 'r') as f:
-                line = f.read()
-        if line:  # Only add non-empty lines
-            message_buffer = line
+    try: 
+        sequence = 0
+        message_buffer = ''
+        max_chunk_size = 3000  # Maximum chunk size in bytes
+        for line in sys.stdin:
+            if line[0] == "<":
+                line = line[1:]
+                line = line.strip()
+                with open(line, 'r') as f:
+                    line = f.read()
+            if line:  # Only add non-empty lines
+                message_buffer = line
 
-            # Check if the buffer size is at least 3000 bytes
-            while len(message_buffer.encode('utf-8')) >= max_chunk_size:
-                # Split the buffer into a chunk and the remainder
-                chunk, message_buffer = message_buffer[:max_chunk_size], message_buffer[max_chunk_size:]
-                sequence += 1
-                send_message(f"{sequence}:{chunk}")
-                count = 0
-                while wait_for_ACK(sequence) != 0:
-                    if (count > 20):
-                        error("we tried sending this packet more than 20 times")
-                    print("Resending message...")
-                    count += 1
+                # Check if the buffer size is at least 3000 bytes
+                while len(message_buffer.encode('utf-8')) >= max_chunk_size:
+                    # Split the buffer into a chunk and the remainder
+                    chunk, message_buffer = message_buffer[:max_chunk_size], message_buffer[max_chunk_size:]
+                    sequence += 1
                     send_message(f"{sequence}:{chunk}")
+                    count = 0
+                    while wait_for_ACK(sequence) != 0:
+                        if (count > 20):
+                            error("we tried sending this packet more than 20 times", "handler")
+                        print("Resending message...")
+                        count += 1
+                        send_message(f"{sequence}:{chunk}")
 
-            # Send any remaining part of the message
-            if message_buffer:
-                sequence += 1
-                send_message(f"{sequence}:{message_buffer}")
-                while wait_for_ACK(sequence) != 0:
-                    print("Resending message...")
+                # Send any remaining part of the message
+                if message_buffer:
+                    sequence += 1
                     send_message(f"{sequence}:{message_buffer}")
+                    while wait_for_ACK(sequence) != 0:
+                        print("Resending message...")
+                        send_message(f"{sequence}:{message_buffer}")
+    except Exception as e:
+        error(e, "handler")
 
     print("End of input reached or no more input.")
     destroy()

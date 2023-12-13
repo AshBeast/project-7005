@@ -1,9 +1,52 @@
-# project-7005
+# Reliable Protocol
+## User Guide
 
-Simulate a lossy network
+### Authors:
+- Ashkan Zahedanaraki
+- Gagan [Lastname]
 
-Instructions for Use
+### Date:
+- December 12th, 2023
 
-1. Start the receiver first, specifying the port it should listen on.
-2. Start the proxy next, specifying the receiver's IP and port, and the port it should listen on.
-3. Finally, start the sender, specifying the proxy's IP and the port it listens on.
+---
+
+## Table of Contents
+
+1. Purpose
+2. Prerequisites
+3. Installing
+   - Obtaining
+   - Running
+4. Features
+5. Built-in Commands
+6. Limitations
+7. Examples
+
+---
+
+## 1. Purpose
+
+The Reliable Protocol is designed for secure and reliable message transmission from a sender to a receiver even over lossy networks. It includes a Proxy for simulating network issues and a GUI for real-time insights into packet loss, delays, and acknowledgments (ACK).
+
+## 2. Prerequisites
+
+Before you begin, ensure you have the following:
+
+- A Python environment (Python 3.x)
+- External libraries:
+  - `matplotlib`
+  - `tkinter`
+- Hardware Requirements:
+  - Minimum of 4 devices (can work with fewer)
+  - Devices must be on the same network
+  - IP addresses of all devices should be known
+
+## 3. Installing
+
+### Obtaining
+
+The code can be found in the `sources` directory of the provided ZIP file or cloned from GitHub:
+
+```bash
+git clone https://github.com/AshBeast/project-7005.git
+
